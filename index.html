@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Get Table Rates</title>
+    <link rel="stylesheet" href="./style.css" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+    />
+  </head>
+  <body>
+    <div class="banner">
+      <div class="logo">Starshipit</div>
+      <div class="menu-btns-wrapper">
+        <button
+          id="clear-cache-btn"
+          class="action-btn"
+          type="button"
+          onclick="clearCache()"
+        >
+          <p>
+            <!-- <span class="material-symbols-outlined"> key </span> -->
+            Clear cache
+          </p>
+        </button>
+        <button
+          id="api-key-btn"
+          class="action-btn"
+          type="button"
+          onclick="showApiKeyModal()"
+        >
+          <p>
+            <!-- <span class="material-symbols-outlined"> key </span> -->
+            Enter Starshipit API Key
+          </p>
+        </button>
+      </div>
+
+      <div id="api-key-modal" class="modal">
+        <div class="modal-content">
+          <span class="close" onclick="closeApiKeyModal()">&times;</span>
+          <h2>Enter API Keys</h2>
+          <div class="input-field">
+            <label for="api-key">Starshipit API Key*</label>
+            <input type="text" id="api-key" placeholder="Enter your API Key" />
+          </div>
+          <div class="input-field">
+            <label for="subscription-key">Subscription Key*</label>
+            <input
+              type="text"
+              id="subscription-key"
+              placeholder="Enter your Subscription Key"
+            />
+          </div>
+          <button class="save-modal-btn" onclick="saveApiKeys()">Save</button>
+        </div>
+      </div>
+    </div>
+    <div class="header">
+      <h1>Freight Calculator</h1>
+      <p>
+        Compare shipping rates to different regions around Australia at a
+        glance.
+      </p>
+      <p>Note: These rates are only an indication. Actual rates may vary.</p>
+    </div>
+    <div class="content-wrapper">
+      <form id="shippingForm">
+        <div class="address-and-packaging">
+          <div class="sender-address">
+            <div class="sub-heading">
+              <span class="material-symbols-outlined"> location_on </span>
+              <h2>Sender address</h2>
+            </div>
+
+            <div class="saved-addresses">
+              <ul class="saved-addresses-list-wrapper" id="saved-addresses-list"></ul>
+            </div>
+
+            <!-- <div class="long-input-field">
+            <label for="country_code">Country Code:</label>
+            <input
+              type="text"
+              id="country_code"
+              name="country_code"
+              value="AU"
+              required
+            />
+          </div> -->
+
+            <div class="long-input-field">
+              <label for="street">Street:</label>
+              <input
+                type="text"
+                id="street"
+                name="street"
+                value="123 Collins St"
+                required
+              />
+            </div>
+
+            <div class="three-cols">
+              <div class="short-input-field">
+                <label for="suburb">Suburb:</label>
+                <input
+                  type="text"
+                  id="suburb"
+                  name="suburb"
+                  value="Melbourne"
+                  required
+                />
+              </div>
+
+              <div class="short-input-field">
+                <label for="state">State:</label>
+                <input
+                  type="text"
+                  id="state"
+                  name="state"
+                  value="VIC"
+                  required
+                />
+              </div>
+
+              <div class="short-input-field">
+                <label for="post-code">Post Code:</label>
+                <input
+                  type="text"
+                  id="post-code"
+                  name="post-code"
+                  value="3000"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="save-address-btn" onclick="saveSenderAddress()">
+              <!-- <span class="material-symbols-outlined" onclick="saveSenderAddress()"> star </span> -->
+              <!-- <span class="material-symbols-outlined" onclick="saveSenderAddress()"> heart_plus </span> -->
+              <span>+ Save this address</span>
+            </div>
+          </div>
+
+          <div class="package-specs">
+            <div class="sub-heading">
+              <span class="material-symbols-outlined"> box </span>
+              <h2>Package weight and size</h2>
+            </div>
+
+            <div class="short-input-field">
+              <label for="weight">Weight (kg):</label>
+              <input
+                type="number"
+                id="weight"
+                name="weight"
+                step="0.01"
+                value="5"
+                required
+              />
+            </div>
+
+            <div class="three-cols">
+              <div class="short-input-field">
+                <label for="height">Height (cm):</label
+                ><input
+                  type="number"
+                  id="height"
+                  name="height"
+                  step="0.01"
+                  value="10"
+                />
+              </div>
+
+              <div class="short-input-field">
+                <label for="width">Width (cm):</label>
+                <input
+                  type="number"
+                  id="width"
+                  name="width"
+                  step="0.01"
+                  value="5.5"
+                />
+              </div>
+
+              <div class="short-input-field">
+                <label for="length">Length (cm):</label>
+                <input
+                  type="number"
+                  id="length"
+                  name="length"
+                  step="0.01"
+                  value="2"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="btns-wrapper">
+          <div class="spacer"></div>
+          <button
+            id="submit-btn"
+            class="cta-submit-btn"
+            type="button"
+            onclick="calculateShippingRate()"
+          >
+            Calculate Shipping Rates by Region
+          </button>
+        </div>
+        <div id="fetch-message"></div>
+      </form>
+
+      <div class="divider"></div>
+
+      <div class="table-rates-results">
+        <div class="sub-heading">
+          <span class="material-symbols-outlined"> local_shipping </span>
+          <h2>Shipping rates to custom address (optional)</h2>
+        </div>
+        <div class="saved-addresses">
+          <ul class="saved-addresses-list-wrapper" id="saved-delivery-addresses-list"></ul>
+        </div>
+        <div class="custom-address-wrapper">
+          <div class="state-wrapper">
+            <div class="zone-wrapper custom-address-wrapper">
+              <form id="customDeliveryAddressForm">
+                <div class="customDeliveryAddressForm">
+                  <div class="long-input-field">
+                    <label for="delivery-street">Street:</label>
+                    <input
+                      type="text"
+                      id="delivery-street"
+                      name="delivery-street"
+                    />
+                  </div>
+
+                  <div class="three-cols">
+                    <div class="short-input-field">
+                      <label for="delivery-suburb">Suburb:</label>
+                      <input
+                        type="text"
+                        id="delivery-suburb"
+                        name="delivery-suburb"
+                      />
+                    </div>
+
+                    <div class="short-input-field">
+                      <label for="delivery-state">State:</label>
+                      <input
+                        type="text"
+                        id="delivery-state"
+                        name="delivery-state"
+                      />
+                    </div>
+
+                    <div class="short-input-field">
+                      <label for="delivery-post-code">Post Code:</label>
+                      <input
+                        type="text"
+                        id="delivery-post-code"
+                        name="delivery-post-code"
+                      />
+                    </div>
+                  </div>
+                  <div class="save-address-btn" onclick="saveDeliveryAddress()">
+                    <span>+ Save delivery address</span>
+                  </div>
+                  <div class="btns-wrapper">
+                    <div class="spacer"></div>
+                    <button
+                      id="custom-address-btn"
+                      class="cta-submit-btn"
+                      type="button"
+                      onclick="calculateCustomAddressShippingRate()"
+                    >
+                      Calculate Shipping Rate
+                    </button>
+                  </div>
+                </div>
+              </form>
+              <div class="result-rates">
+                <div id="result-custom-address"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sub-heading">
+          <span class="material-symbols-outlined"> flightsmode </span>
+          <h2>Shipping rates by region</h2>
+        </div>
+        <div class="results-container">
+          <div class="state-wrapper">
+            <h3>New South Wales</h3>
+            <div class="zone-wrapper">
+              <div class="zone-and-postcode">
+                <h5>Sydney</h5>
+              </div>
+              <div class="result-rates">
+                <div id="result-sydney"></div>
+              </div>
+            </div>
+            <div class="zone-wrapper">
+              <div class="zone-and-postcode">
+                <h5>Other NSW</h5>
+              </div>
+              <div class="result-rates">
+                <div id="result-other-nsw"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="state-wrapper">
+            <h3>Victoria</h3>
+            <div class="zone-wrapper">
+              <div class="zone-and-postcode">
+                <h5>Melbourne</h5>
+              </div>
+              <div class="result-rates">
+                <div id="result-melbourne"></div>
+              </div>
+            </div>
+            <div class="zone-wrapper">
+              <div class="zone-and-postcode">
+                <h5>Other VIC</h5>
+              </div>
+              <div class="result-rates">
+                <div id="result-other-vic"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="state-wrapper">
+            <h3>Queensland</h3>
+            <div class="zone-wrapper">
+              <div class="zone-and-postcode">
+                <h5>Brisbane</h5>
+              </div>
+              <div class="result-rates">
+                <div id="result-brisbane"></div>
+              </div>
+            </div>
+            <div class="zone-wrapper">
+              <div class="zone-and-postcode">
+                <h5>Near QLD</h5>
+              </div>
+              <div class="result-rates">
+                <div id="result-near-qld"></div>
+              </div>
+            </div>
+            <div class="zone-wrapper">
+              <div class="zone-and-postcode">
+                <h5>Mid QLD</h5>
+              </div>
+              <div class="result-rates">
+                <div id="result-mid-qld"></div>
+              </div>
+            </div>
+            <div class="zone-wrapper">
+              <div class="zone-and-postcode">
+                <h5>Nth QLD</h5>
+              </div>
+              <div class="result-rates">
+                <div id="result-nth-qld"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="state-wrapper">
+            <h3>Western Australia</h3>
+            <div class="zone-wrapper">
+              <div class="zone-and-postcode">
+                <h5>Perth</h5>
+              </div>
+              <div class="result-rates">
+                <div id="result-perth"></div>
+              </div>
+            </div>
+            <div class="zone-wrapper">
+              <div class="zone-and-postcode">
+                <h5>Mid WA</h5>
+              </div>
+              <div class="result-rates">
+                <div id="result-mid-wa"></div>
+              </div>
+            </div>
+            <div class="zone-wrapper">
+              <div class="zone-and-postcode">
+                <h5>Nth WA</h5>
+              </div>
+              <div class="result-rates">
+                <div id="result-nth-wa"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="state-wrapper">
+            <h3>South Australia</h3>
+            <div class="zone-wrapper">
+              <div class="zone-and-postcode">
+                <h5>Adelaide</h5>
+              </div>
+              <div class="result-rates">
+                <div id="result-adelaide"></div>
+              </div>
+            </div>
+            <div class="zone-wrapper">
+              <div class="zone-and-postcode">
+                <h5>Other SA</h5>
+              </div>
+              <div class="result-rates">
+                <div id="result-other-sa"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="state-wrapper">
+            <h3>Northern Territory</h3>
+            <div class="zone-wrapper">
+              <div class="zone-and-postcode">
+                <h5>Northern Territory</h5>
+              </div>
+              <div class="result-rates">
+                <div id="result-northern-territory"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="state-wrapper">
+            <h3>Tasmania</h3>
+            <div class="zone-wrapper">
+              <div class="zone-and-postcode">
+                <h5>Tasmania</h5>
+              </div>
+              <div class="result-rates">
+                <div id="result-tasmania"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
