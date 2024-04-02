@@ -139,8 +139,6 @@ const zones = [
 let apiKey = "";
 let subscriptionKey = "";
 
-// "StarShipIT-Api-Key": "3b6ace8adb3f48e592a6026068a67d8d",
-// "Ocp-Apim-Subscription-Key": "b686fcc9b8b546d0be824f91840148a9",
 
 // Function to show the API key modal
 function showApiKeyModal() {
@@ -371,6 +369,80 @@ if (storedApiKey && storedSubscriptionKey) {
 //   }
 // }
 
+console.log("hey man");
+
+// function calculateShippingRate() {
+//   console.log("Calculating shipping rate...");
+//   document.getElementById("fetch-message").textContent = "Fetching results...";
+
+//   if (!apiKey || !subscriptionKey) {
+//     showApiKeyModal();
+//     return;
+//   }
+
+//   const formData = {
+//     sender: {
+//       street: document.getElementById("street").value,
+//       suburb: document.getElementById("suburb").value,
+//       city: document.getElementById("suburb").value,
+//       state: document.getElementById("state").value,
+//       post_code: document.getElementById("post-code").value,
+//       country_code: "AU", // Assuming the country code is always "AU"
+//     },
+//     packages: [
+//       {
+//         weight: parseFloat(document.getElementById("weight").value),
+//         height: parseFloat(document.getElementById("height").value / 10),
+//         width: parseFloat(document.getElementById("width").value / 10),
+//         length: parseFloat(document.getElementById("length").value / 10),
+//       },
+//     ],
+//     currency: "AUD",
+//   };
+
+//   console.log(
+//     "...from sender address",
+//     formData.sender,
+//     "with the package",
+//     formData.packages
+//   );
+
+//   const delay = 2500; // Delay in milliseconds between requests
+//   const maxRetries = 3; // Maximum number of retries for failed requests
+//   let delayCounter = 0;
+
+//   const presetCacheKey = JSON.stringify(formData); // Cache key for pre-set delivery regions
+//   const cachedPresetData = localStorage.getItem(presetCacheKey); // Check if pre-set data is cached
+
+//   const promises = zones.map((destination, index) => {
+//     const requestData = { ...formData, destination };
+
+//     return fetchRatesWithRetry(
+//       requestData,
+//       index,
+//       delay,
+//       maxRetries,
+//       delayCounter,
+//       true
+//     );
+//   });
+
+//   Promise.all(promises)
+//     .then((results) => {
+//       localStorage.setItem(presetCacheKey, JSON.stringify(results));
+
+//       // Show the "Completed" message
+//       document.getElementById("fetch-message").textContent = "Completed";
+//     })
+//     .catch((error) => {
+//       console.error("Error caching data:", error);
+
+//       // Show the "Completed" message even if there's an error
+//       document.getElementById("fetch-message").textContent =
+//         "Request Complete - Error caching data";
+//     });
+// }
+
 function calculateShippingRate() {
   console.log("Calculating shipping rate...");
   document.getElementById("fetch-message").textContent = "Fetching results...";
@@ -381,22 +453,29 @@ function calculateShippingRate() {
   }
 
   const formData = {
+    order_id: 100000,
+    refresh_rate: true,
     sender: {
       street: document.getElementById("street").value,
       suburb: document.getElementById("suburb").value,
       city: document.getElementById("suburb").value,
       state: document.getElementById("state").value,
       post_code: document.getElementById("post-code").value,
-      country_code: "AU", // Assuming the country code is always "AU"
+      country_code: "AU",
     },
     packages: [
       {
         weight: parseFloat(document.getElementById("weight").value),
-        height: parseFloat(document.getElementById("height").value / 10),
-        width: parseFloat(document.getElementById("width").value / 10),
-        length: parseFloat(document.getElementById("length").value / 10),
+        height: parseFloat(document.getElementById("height").value / 100),
+        width: parseFloat(document.getElementById("width").value / 100),
+        length: parseFloat(document.getElementById("length").value / 100),
+        package_name: "Package",
       },
     ],
+    declared_value: 20.0,
+    return_order: false,
+    include_pricing: true,
+    no_cache: true,
     currency: "AUD",
   };
 
@@ -407,157 +486,233 @@ function calculateShippingRate() {
     formData.packages
   );
 
-  const delay = 2500; // Delay in milliseconds between requests
-  const maxRetries = 3; // Maximum number of retries for failed requests
+  const delay = 6900; // Delay in milliseconds between requests
+  const maxRetries = 5; // Maximum number of retries for failed requests
   let delayCounter = 0;
-
-  const presetCacheKey = JSON.stringify(formData); // Cache key for pre-set delivery regions
-  const cachedPresetData = localStorage.getItem(presetCacheKey); // Check if pre-set data is cached
 
   const promises = zones.map((destination, index) => {
     const requestData = { ...formData, destination };
 
-    return fetchRatesWithRetry(
+    return fetchDeliveryServicesWithRetry(
       requestData,
       index,
       delay,
       maxRetries,
-      delayCounter,
-      true
+      delayCounter
     );
   });
 
   Promise.all(promises)
-    .then((results) => {
-      localStorage.setItem(presetCacheKey, JSON.stringify(results));
-
+    .then(() => {
       // Show the "Completed" message
       document.getElementById("fetch-message").textContent = "Completed";
     })
     .catch((error) => {
-      console.error("Error caching data:", error);
+      console.error("Error:", error);
 
       // Show the "Completed" message even if there's an error
       document.getElementById("fetch-message").textContent =
-        "Request Complete - Error caching data";
+        "Request Complete - Error fetching data";
     });
 }
 
-function calculateCustomAddressShippingRate() {
-  console.log("Calculating shipping rate for custom address...");
-  document.getElementById("fetch-message").textContent = "Fetching results...";
-
-  if (!apiKey || !subscriptionKey) {
-    showApiKeyModal();
-    return;
-  }
-
-  const formData = {
-    sender: {
-      street: document.getElementById("street").value,
-      suburb: document.getElementById("suburb").value,
-      city: document.getElementById("suburb").value,
-      state: document.getElementById("state").value,
-      post_code: document.getElementById("post-code").value,
-      country_code: "AU", // Assuming the country code is always "AU"
-    },
-    packages: [
-      {
-        weight: parseFloat(document.getElementById("weight").value),
-        height: parseFloat(document.getElementById("height").value / 10),
-        width: parseFloat(document.getElementById("width").value / 10),
-        length: parseFloat(document.getElementById("length").value / 10),
-      },
-    ],
-    currency: "AUD",
-  };
-
-  const customDeliveryAddress = {
-    street: document.getElementById("delivery-street").value,
-    suburb: document.getElementById("delivery-suburb").value,
-    city: document.getElementById("delivery-suburb").value,
-    state: document.getElementById("delivery-state").value,
-    post_code: document.getElementById("delivery-post-code").value,
-    country_code: "AU", // Assuming the country code is always "AU"
-  };
-
-  const isCustomAddressValid =
-    customDeliveryAddress.street &&
-    customDeliveryAddress.suburb &&
-    customDeliveryAddress.city &&
-    customDeliveryAddress.state &&
-    customDeliveryAddress.post_code;
-
-  if (!isCustomAddressValid) {
-    document.getElementById("result-custom-address").innerHTML =
-      "Please enter a valid delivery address.";
-    document.getElementById("fetch-message").textContent = "Completed";
-    return;
-  }
-
-  const delay = 500; // Delay in milliseconds between requests
-  const maxRetries = 3; // Maximum number of retries for failed requests
-  let delayCounter = 0;
-
-  const customCacheKey = JSON.stringify({
-    ...formData,
-    destination: customDeliveryAddress,
-  }); // Cache key for custom delivery address
-  const cachedCustomData = localStorage.getItem(customCacheKey); // Check if custom data is cached
-
-  if (cachedCustomData) {
-    const cachedResult = JSON.parse(cachedCustomData);
-    if (cachedResult.success) {
-      const rates = cachedResult.rates
-        .map((rate) => `${rate.service_name}: $${rate.total_price.toFixed(2)}`)
-        .join("<br>");
-      document.getElementById("result-custom-address").innerHTML = rates;
-    } else {
-      document.getElementById("result-custom-address").innerHTML =
-        "Failed to get rates";
-    }
-
-    // Show the "Completed" message
-    document.getElementById("fetch-message").textContent = "Completed";
-  } else {
-    const requestData = { ...formData, destination: customDeliveryAddress };
-
-    fetchRatesWithRetry(
-      requestData,
-      null,
-      delay,
-      maxRetries,
-      delayCounter,
-      false
-    )
-      .then((result) => {
-        if (result && result.success) {
-          const rates = result.rates
-            .map(
-              (rate) => `${rate.service_name}: $${rate.total_price.toFixed(2)}`
-            )
-            .join("<br>");
-          document.getElementById("result-custom-address").innerHTML = rates;
-          localStorage.setItem(customCacheKey, JSON.stringify(result));
-        } else {
-          document.getElementById("result-custom-address").innerHTML =
-            "Failed to get rates";
-        }
-
-        // Show the "Completed" message
-        document.getElementById("fetch-message").textContent = "Completed";
+function fetchDeliveryServicesWithRetry(
+  requestData,
+  index,
+  delay,
+  maxRetries,
+  delayCounter
+) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      fetch("https://api.starshipit.com/api/deliveryservices", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "StarShipIT-Api-Key": apiKey,
+          "Ocp-Apim-Subscription-Key": subscriptionKey,
+        },
+        body: JSON.stringify(requestData),
       })
-      .catch((error) => {
-        console.error("Error caching data:", error);
-        document.getElementById("result-custom-address").innerHTML =
-          "An error occurred";
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            const services = data.services.map(
+              (service) => `
+            <strong>${service.carrier}</strong> ${service.service_name} (${
+                service.service_code
+              }) • $${service.total_price.toFixed(2)}<br><br>
+            `
+            );
 
-        // Show the "Completed" message even if there's an error
-        document.getElementById("fetch-message").textContent =
-          "Request Complete - Error caching data";
-      });
-  }
+            document.getElementById(
+              `result-${requestData.destination.zone_name}`
+            ).innerHTML = services.join("");
+            resolve();
+          } else {
+            if (delayCounter < maxRetries) {
+              console.log(
+                `Failed to get services for ${requestData.destination.zone_name}. Retrying...`
+              );
+              fetchDeliveryServicesWithRetry(
+                requestData,
+                index,
+                delay,
+                maxRetries,
+                delayCounter + 1
+              )
+                .then(resolve)
+                .catch(reject);
+            } else {
+              document.getElementById(
+                `result-${requestData.destination.zone_name}`
+              ).innerHTML = "Failed to get services after multiple retries";
+              resolve();
+            }
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          if (delayCounter < maxRetries) {
+            console.log(
+              `An error occurred for ${requestData.destination.zone_name}. Retrying...`
+            );
+            fetchDeliveryServicesWithRetry(
+              requestData,
+              index,
+              delay,
+              maxRetries,
+              delayCounter + 1
+            )
+              .then(resolve)
+              .catch(reject);
+          } else {
+            document.getElementById(
+              `result-${requestData.destination.zone_name}`
+            ).innerHTML = "An error occurred after multiple retries";
+            resolve();
+          }
+        });
+    }, delayCounter * delay);
+    delayCounter++;
+  });
 }
+
+// function calculateCustomAddressShippingRate() {
+//   console.log("Calculating shipping rate for custom address...");
+//   document.getElementById("fetch-message").textContent = "Fetching results...";
+
+//   if (!apiKey || !subscriptionKey) {
+//     showApiKeyModal();
+//     return;
+//   }
+
+//   const formData = {
+//     sender: {
+//       street: document.getElementById("street").value,
+//       suburb: document.getElementById("suburb").value,
+//       city: document.getElementById("suburb").value,
+//       state: document.getElementById("state").value,
+//       post_code: document.getElementById("post-code").value,
+//       country_code: "AU", // Assuming the country code is always "AU"
+//     },
+//     packages: [
+//       {
+//         weight: parseFloat(document.getElementById("weight").value),
+//         height: parseFloat(document.getElementById("height").value / 10),
+//         width: parseFloat(document.getElementById("width").value / 10),
+//         length: parseFloat(document.getElementById("length").value / 10),
+//       },
+//     ],
+//     currency: "AUD",
+//   };
+
+//   const customDeliveryAddress = {
+//     street: document.getElementById("delivery-street").value,
+//     suburb: document.getElementById("delivery-suburb").value,
+//     city: document.getElementById("delivery-suburb").value,
+//     state: document.getElementById("delivery-state").value,
+//     post_code: document.getElementById("delivery-post-code").value,
+//     country_code: "AU", // Assuming the country code is always "AU"
+//   };
+
+//   const isCustomAddressValid =
+//     customDeliveryAddress.street &&
+//     customDeliveryAddress.suburb &&
+//     customDeliveryAddress.city &&
+//     customDeliveryAddress.state &&
+//     customDeliveryAddress.post_code;
+
+//   if (!isCustomAddressValid) {
+//     document.getElementById("result-custom-address").innerHTML =
+//       "Please enter a valid delivery address.";
+//     document.getElementById("fetch-message").textContent = "Completed";
+//     return;
+//   }
+
+//   const delay = 500; // Delay in milliseconds between requests
+//   const maxRetries = 3; // Maximum number of retries for failed requests
+//   let delayCounter = 0;
+
+//   const customCacheKey = JSON.stringify({
+//     ...formData,
+//     destination: customDeliveryAddress,
+//   }); // Cache key for custom delivery address
+//   const cachedCustomData = localStorage.getItem(customCacheKey); // Check if custom data is cached
+
+//   if (cachedCustomData) {
+//     const cachedResult = JSON.parse(cachedCustomData);
+//     if (cachedResult.success) {
+//       const rates = cachedResult.rates
+//         .map((rate) => `${rate.service_name}: $${rate.total_price.toFixed(2)}`)
+//         .join("<br>");
+//       document.getElementById("result-custom-address").innerHTML = rates;
+//     } else {
+//       document.getElementById("result-custom-address").innerHTML =
+//         "Failed to get rates";
+//     }
+
+//     // Show the "Completed" message
+//     document.getElementById("fetch-message").textContent = "Completed";
+//   } else {
+//     const requestData = { ...formData, destination: customDeliveryAddress };
+
+//     fetchRatesWithRetry(
+//       requestData,
+//       null,
+//       delay,
+//       maxRetries,
+//       delayCounter,
+//       false
+//     )
+//       .then((result) => {
+//         if (result && result.success) {
+//           const rates = result.rates
+//             .map(
+//               (rate) => `${rate.service_name}: $${rate.total_price.toFixed(2)}`
+//             )
+//             .join("<br>");
+//           document.getElementById("result-custom-address").innerHTML = rates;
+//           localStorage.setItem(customCacheKey, JSON.stringify(result));
+//         } else {
+//           document.getElementById("result-custom-address").innerHTML =
+//             "Failed to get rates";
+//         }
+
+//         // Show the "Completed" message
+//         document.getElementById("fetch-message").textContent = "Completed";
+//       })
+//       .catch((error) => {
+//         console.error("Error caching data:", error);
+//         document.getElementById("result-custom-address").innerHTML =
+//           "An error occurred";
+
+//         // Show the "Completed" message even if there's an error
+//         document.getElementById("fetch-message").textContent =
+//           "Request Complete - Error caching data";
+//       });
+//   }
+// }
 
 function fetchRatesWithRetry(
   requestData,
@@ -664,6 +819,213 @@ function fetchRatesWithRetry(
   });
 }
 
+function calculateCustomAddressShippingRate() {
+  console.log("Calculating shipping rate for custom address...");
+  document.getElementById("fetch-message").textContent = "Fetching results...";
+
+  if (!apiKey || !subscriptionKey) {
+    showApiKeyModal();
+    return;
+  }
+
+  const formData = {
+    order_id: 100000,
+    refresh_rate: true,
+    sender: {
+      street: document.getElementById("street").value,
+      suburb: document.getElementById("suburb").value,
+      city: document.getElementById("suburb").value,
+      state: document.getElementById("state").value,
+      post_code: document.getElementById("post-code").value,
+      country_code: "AU",
+    },
+    packages: [
+      {
+        weight: parseFloat(document.getElementById("weight").value),
+        height: parseFloat(document.getElementById("height").value / 100),
+        width: parseFloat(document.getElementById("width").value / 100),
+        length: parseFloat(document.getElementById("length").value / 100),
+        package_name: "Package",
+      },
+    ],
+    declared_value: 20.0,
+    return_order: false,
+    include_pricing: true,
+    no_cache: true,
+    currency: "AUD",
+  };
+
+  const customDeliveryAddress = {
+    street: document.getElementById("delivery-street").value,
+    suburb: document.getElementById("delivery-suburb").value,
+    city: document.getElementById("delivery-suburb").value,
+    state: document.getElementById("delivery-state").value,
+    post_code: document.getElementById("delivery-post-code").value,
+    country_code: "AU", // Assuming the country code is always "AU"
+  };
+
+  const isCustomAddressValid =
+    customDeliveryAddress.street &&
+    customDeliveryAddress.suburb &&
+    customDeliveryAddress.city &&
+    customDeliveryAddress.state &&
+    customDeliveryAddress.post_code;
+
+  if (!isCustomAddressValid) {
+    document.getElementById("result-custom-address").innerHTML =
+      "Please enter a valid delivery address.";
+    document.getElementById("fetch-message").textContent = "Completed";
+    return;
+  }
+
+  const delay = 3500; // Delay in milliseconds between requests
+  const maxRetries = 5; // Maximum number of retries for failed requests
+  let delayCounter = 0;
+
+  const requestData = { ...formData, destination: customDeliveryAddress };
+
+  fetchDeliveryServicesWithRetry(
+    requestData,
+    null,
+    delay,
+    maxRetries,
+    delayCounter
+  )
+    .then((data) => {
+      if (data && data.success) {
+        const services = data.services.map(
+          (service) => `
+        <strong>${service.carrier}</strong> ${service.service_name} (${
+            service.service_code
+          }) • $${service.total_price.toFixed(2)}<br><br>
+      `
+        );
+
+        document.getElementById("result-custom-address").innerHTML =
+          services.join("");
+      } else {
+        document.getElementById("result-custom-address").innerHTML =
+          "Failed to get services";
+      }
+
+      // Show the "Completed" message
+      document.getElementById("fetch-message").textContent = "Completed";
+    })
+    .catch((error) => {
+      console.error("Error fetching data:", error);
+      document.getElementById("result-custom-address").innerHTML =
+        "An error occurred";
+
+      // Show the "Completed" message even if there's an error
+      document.getElementById("fetch-message").textContent =
+        "Request Complete - Error fetching data";
+    });
+}
+
+function fetchDeliveryServicesWithRetry(
+  requestData,
+  index,
+  delay,
+  maxRetries,
+  delayCounter
+) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      fetch("https://api.starshipit.com/api/deliveryservices", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "StarShipIT-Api-Key": apiKey,
+          "Ocp-Apim-Subscription-Key": subscriptionKey,
+        },
+        body: JSON.stringify(requestData),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            if (index !== null) {
+              const services = data.services.map(
+                (service) => `
+                Carrier: ${service.carrier}<br>
+                Carrier Name: ${service.carrier_name}<br>
+                Service Name: ${service.service_name}<br>
+                Service Code: ${service.service_code}<br>
+                Total Price: $${service.total_price.toFixed(2)}<br><br>
+              `
+              );
+
+              document.getElementById(
+                `result-${requestData.destination.zone_name}`
+              ).innerHTML = services.join("");
+            }
+            resolve(data);
+          } else {
+            if (delayCounter < maxRetries) {
+              console.log(
+                `Failed to get services for ${
+                  index !== null
+                    ? requestData.destination.zone_name
+                    : "Custom Address"
+                }. Retrying...`
+              );
+              fetchDeliveryServicesWithRetry(
+                requestData,
+                index,
+                delay,
+                maxRetries,
+                delayCounter + 1
+              )
+                .then(resolve)
+                .catch(reject);
+            } else {
+              if (index !== null) {
+                document.getElementById(
+                  `result-${requestData.destination.zone_name}`
+                ).innerHTML = "Failed to get services after multiple retries";
+              } else {
+                document.getElementById("result-custom-address").innerHTML =
+                  "Failed to get services after multiple retries";
+              }
+              resolve(null);
+            }
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          if (delayCounter < maxRetries) {
+            console.log(
+              `An error occurred for ${
+                index !== null
+                  ? requestData.destination.zone_name
+                  : "Custom Address"
+              }. Retrying...`
+            );
+            fetchDeliveryServicesWithRetry(
+              requestData,
+              index,
+              delay,
+              maxRetries,
+              delayCounter + 1
+            )
+              .then(resolve)
+              .catch(reject);
+          } else {
+            if (index !== null) {
+              document.getElementById(
+                `result-${requestData.destination.zone_name}`
+              ).innerHTML = "An error occurred after multiple retries";
+            } else {
+              document.getElementById("result-custom-address").innerHTML =
+                "An error occurred after multiple retries";
+            }
+            resolve(null);
+          }
+        });
+    }, delayCounter * delay);
+    delayCounter++;
+  });
+}
+
 const MAX_SAVED_ADDRESSES = 5;
 let savedAddresses = [];
 
@@ -717,7 +1079,6 @@ if (savedAddressesFromStorage) {
 // Display saved addresses on page load
 displaySavedAddresses();
 
-
 const MAX_SAVED_DELIVERY_ADDRESSES = 5;
 let savedDeliveryAddresses = [];
 
@@ -734,16 +1095,23 @@ function saveDeliveryAddress() {
 
   if (savedDeliveryAddresses.length < MAX_SAVED_DELIVERY_ADDRESSES) {
     savedDeliveryAddresses.push(deliveryAddress);
-    localStorage.setItem("savedDeliveryAddresses", JSON.stringify(savedDeliveryAddresses));
+    localStorage.setItem(
+      "savedDeliveryAddresses",
+      JSON.stringify(savedDeliveryAddresses)
+    );
     displaySavedDeliveryAddresses();
   } else {
-    alert(`You can save up to ${MAX_SAVED_DELIVERY_ADDRESSES} delivery addresses only.`);
+    alert(
+      `You can save up to ${MAX_SAVED_DELIVERY_ADDRESSES} delivery addresses only.`
+    );
   }
 }
 
 // Function to display the saved delivery addresses
 function displaySavedDeliveryAddresses() {
-  const savedDeliveryAddressesList = document.getElementById("saved-delivery-addresses-list");
+  const savedDeliveryAddressesList = document.getElementById(
+    "saved-delivery-addresses-list"
+  );
   savedDeliveryAddressesList.innerHTML = "";
 
   savedDeliveryAddresses.forEach((address, index) => {
@@ -763,12 +1131,14 @@ function populateDeliveryAddress(address) {
 }
 
 // Retrieve saved addresses from localStorage
-const savedDeliveryAddressesFromStorage = localStorage.getItem("savedDeliveryAddresses");
+const savedDeliveryAddressesFromStorage = localStorage.getItem(
+  "savedDeliveryAddresses"
+);
 if (savedDeliveryAddressesFromStorage) {
   savedDeliveryAddresses = JSON.parse(savedDeliveryAddressesFromStorage);
 }
 
-displaySavedDeliveryAddresses()
+displaySavedDeliveryAddresses();
 
 // Function to clear the cache
 function clearCache() {
@@ -776,6 +1146,3 @@ function clearCache() {
   location.reload();
   alert("Cache has been cleared.");
 }
-
-
-
