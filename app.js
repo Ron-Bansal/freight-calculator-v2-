@@ -139,6 +139,8 @@ const zones = [
 let apiKey = "";
 let subscriptionKey = "";
 
+// "StarShipIT-Api-Key": "3b6ace8adb3f48e592a6026068a67d8d",
+// "Ocp-Apim-Subscription-Key": "b686fcc9b8b546d0be824f91840148a9",
 
 // Function to show the API key modal
 function showApiKeyModal() {
@@ -878,7 +880,7 @@ function calculateCustomAddressShippingRate() {
     return;
   }
 
-  const delay = 3500; // Delay in milliseconds between requests
+  const delay = 6500; // Delay in milliseconds between requests
   const maxRetries = 5; // Maximum number of retries for failed requests
   let delayCounter = 0;
 
@@ -946,12 +948,10 @@ function fetchDeliveryServicesWithRetry(
             if (index !== null) {
               const services = data.services.map(
                 (service) => `
-                Carrier: ${service.carrier}<br>
-                Carrier Name: ${service.carrier_name}<br>
-                Service Name: ${service.service_name}<br>
-                Service Code: ${service.service_code}<br>
-                Total Price: $${service.total_price.toFixed(2)}<br><br>
-              `
+                <strong>${service.carrier}</strong> ${service.service_name} (${
+                    service.service_code
+                  }) • $${service.total_price.toFixed(2)}<br><br>
+                `
               );
 
               document.getElementById(
@@ -1146,3 +1146,16 @@ function clearCache() {
   location.reload();
   alert("Cache has been cleared.");
 }
+
+// 44 Griffin Crescent
+// Brendale
+// QLD 4500
+
+// Cairns QLD 4870 $30-84. 10kg 30x25x25
+// 1c3f77cada354afc84de8c6a4ec915f3
+// f1d035d180db4d18b3149c1ff28b3cc5
+//               Carrier: ${service.carrier}<br>
+// Carrier Name: ${service.carrier_name}<br>
+// Service Name: ${service.service_name}<br>
+// Service Code: ${service.service_code}<br>
+// Total Price: $${service.total_price.toFixed(2)}<br><br>
