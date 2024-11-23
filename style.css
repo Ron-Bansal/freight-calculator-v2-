@@ -160,16 +160,17 @@ input {
   font-size: 1.1rem;
   margin-bottom: 0.8rem;
   background: #eff2f9;
+  background: #eff3f6;
   box-shadow: inset 2px 2px 3px rgba(22, 27, 29, 0.23),
     inset -3px -3px 4.2px #fcfaff;
-  border-radius: 3px;
-  box-shadow: inset 2px 2px 4px #d1d9e6, inset -2px -2px 4px #f9f9f9;
+  border-radius: 4px;
+  box-shadow: inset 2px 2px 3px #d1d9e6, inset -2px -2px 3px #f9f9f9;
 }
 
 input:focus {
   border: none;
   outline: none;
-  box-shadow: inset 4px 4px 4px #d1d9e6, inset -4px -4px 4px #f9f9f9;
+  box-shadow: inset 3px 3px 4px #d1d9e6, inset -3px -3px 4px #f9f9f9;
 }
 
 .short-input-field {
